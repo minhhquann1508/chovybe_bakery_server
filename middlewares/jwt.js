@@ -12,4 +12,11 @@ const generateRefreshToken = (id, role) => {
   });
 };
 
-export { generateAccessToken, generateRefreshToken };
+const verifyRefreshToken = (token) => {
+  return jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    if (err) return null;
+    return decoded;
+  });
+};
+
+export { generateAccessToken, generateRefreshToken, verifyRefreshToken };

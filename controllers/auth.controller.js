@@ -6,6 +6,7 @@ import sendEmail from "../utils/sendMail.js";
 import {
   generateAccessToken,
   generateRefreshToken,
+  verifyRefreshToken,
 } from "../middlewares/jwt.js";
 
 const controller = {};
@@ -99,7 +100,52 @@ controller.login = async (req, res) => {
 
 controller.logout = async (req, res) => {
   try {
-  } catch (error) {}
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+    });
+    return res.status(StatusCodes.OK).json({ msg: "Đăng xuất thành công" });
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      msg: "Lỗi phía server",
+    });
+  }
+};
+
+controller.refreshToken = async (req, res) => {
+  try {
+    const { refreshToken } = req.cookies;
+    if (!refreshToken)
+      return res.status(StatusCodes.UNAUTHORIZED).json({
+        msg: "Vui lòng đăng nhập lại",
+      });
+    // Kiểm tra token hợp lệ
+    const isTokenValid = verifyRefreshToken(refreshToken);
+    if (!isTokenValid)
+      return res.status(StatusCodes.UNAUTHORIZED).json({
+        msg: "Vui lòng đăng nhập lại",
+      });
+    const { id } = isTokenValid;
+    // Kiểm tra người dùng
+    const user = await UserModel.findById(id);
+    if (!user)
+      return res.status(StatusCodes.UNAUTHORIZED).json({
+        msg: "Vui lòng đăng nhập lại",
+      });
+    // Tạo token mới
+    const accessToken = generateAccessToken(user._id, user.role);
+    return res.status(StatusCodes.OK).json({
+      msg: "Tạo token thành công",
+      data: {
+        accessToken,
+      },
+    });
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      msg: "Lỗi phía server",
+    });
+  }
 };
 
 controller.forgotPassword = async (req, res) => {
