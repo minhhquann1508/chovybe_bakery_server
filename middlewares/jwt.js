@@ -12,6 +12,20 @@ const generateRefreshToken = (id, role) => {
   });
 };
 
+const verifyAccessToken = async (req, res, next) => {
+  const token = req.headers["authorization"]?.split(" ")[1];
+  if (!token) {
+    return res.status(401).json({ msg: "Bạn không có quyền truy cập" });
+  }
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ msg: "Bạn không có quyền truy cập" });
+    }
+    req.user = decoded;
+    next();
+  });
+};
+
 const verifyRefreshToken = (token) => {
   return jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
     if (err) return null;
@@ -19,4 +33,9 @@ const verifyRefreshToken = (token) => {
   });
 };
 
-export { generateAccessToken, generateRefreshToken, verifyRefreshToken };
+export {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyRefreshToken,
+  verifyAccessToken,
+};

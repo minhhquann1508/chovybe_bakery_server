@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 
 import { connectDb } from "./configs/db.js";
 import useRoute from "./routers/index.js";
+import { notFound } from "./middlewares/notFound.js";
 
 dotenv.config();
 
@@ -16,6 +17,8 @@ app.use(cors());
 app.use(cookieParser());
 
 useRoute(app);
+
+app.use(notFound);
 
 const port = process.env.PORT || 5050;
 
