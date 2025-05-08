@@ -1,35 +1,29 @@
 import express from "express";
 const router = express.Router();
-import categoryController from "../controllers/category.controller.js";
+import subCategoryController from "../controllers/subCategory.controller.js";
 import { verifyAccessToken } from "../middlewares/jwt.js";
 import { checkRole } from "../middlewares/checkRole.js";
 
 router
-  .get("/", categoryController.getAllCategories)
+  .get("/", subCategoryController.getAllSubCategories)
   .post(
     "/",
     verifyAccessToken,
     checkRole("admin"),
-    categoryController.createCategory
+    subCategoryController.createSubCategory
   )
-  .get("/detail", categoryController.getDetailCategory)
-  .put(
-    "/update-image/:id",
-    verifyAccessToken,
-    checkRole("admin"),
-    categoryController.updateImageCategory
-  )
+  .get("/detail", subCategoryController.getDetailSubCategory)
   .put(
     "/change-status/:id",
     verifyAccessToken,
     checkRole("admin"),
-    categoryController.changeStatusCategory
+    subCategoryController.changeStatusSubCategory
   )
   .put(
     "/:id",
     verifyAccessToken,
     checkRole("admin"),
-    categoryController.updateCategory
+    subCategoryController.updateSubCategory
   );
 
 export default router;

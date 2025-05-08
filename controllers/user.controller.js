@@ -31,7 +31,7 @@ controller.getAllUsers = async (req, res) => {
       msg: "Lấy danh sách người dùng thành công",
       data: users,
       pagination: {
-        totalUsers,
+        totalItems: totalUsers,
         currentPage: Number(page),
         totalPages: Math.ceil(totalUsers / limit),
       },

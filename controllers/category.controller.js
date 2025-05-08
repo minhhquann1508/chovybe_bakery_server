@@ -54,7 +54,7 @@ controller.getAllCategories = async (req, res) => {
       message: "Lấy danh sách danh mục thành công",
       data: categories,
       pagination: {
-        totalCategories,
+        totalItems: totalCategories,
         currentPage: Number(page),
         totalPages: Math.ceil(totalCategories / limit),
       },
@@ -76,7 +76,7 @@ controller.getDetailCategory = async (req, res) => {
       });
 
     const query = {
-      $or: [{ _id: id }, { slug: slug }],
+      $or: [{ _id: id }, { slug: { $regex: slug, $options: "i" } }],
     };
 
     const category = await CategoryModel.findOne(query).populate(
@@ -125,6 +125,34 @@ controller.updateCategory = async (req, res) => {
 
     return res.status(StatusCodes.OK).json({
       message: "Cập nhật danh mục thành công",
+      data: category,
+    });
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: "Lỗi phía server",
+    });
+  }
+};
+
+controller.updateImageCategory = async (req, res) => {
+  try {
+    const { image } = req.body;
+    const { id } = req.params;
+    if (!id || !image)
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: "Thiếu id hoặc ảnh danh mục",
+      });
+
+    const category = await CategoryModel.findById(id);
+    if (!category)
+      return res.status(StatusCodes.NOT_FOUND).json({
+        message: "Không tìm thấy danh mục",
+      });
+
+    category.image = image;
+    await category.save();
+    return res.status(StatusCodes.OK).json({
+      message: "Cập nhật ảnh danh mục thành công",
       data: category,
     });
   } catch (error) {
